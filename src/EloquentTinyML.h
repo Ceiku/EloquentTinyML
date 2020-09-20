@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <math.h>
 #include "tensorflow/lite/version.h"
+#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -28,10 +29,11 @@ namespace Eloquent {
             TfLite() :
                 failed(false) {
             }
+            
+            void set_resolver(tflite::MicroOpResolver resolver) { this->resolver = resolver; }
 
             bool begin(const unsigned char *modelData) {
                 static tflite::MicroErrorReporter microReporter;
-                static tflite::ops::micro::AllOpsResolver resolver;
 
                 reporter = &microReporter;
                 model = tflite::GetModel(modelData);
@@ -39,7 +41,7 @@ namespace Eloquent {
                 // assert model version and runtime version match
                 if (model->version() != TFLITE_SCHEMA_VERSION) {
                     failed = true;
-                    Serial.println("Version mismatch");
+//                     Serial.println("Version mismatch");
                     reporter->Report(
                             "Model provided is schema version %d not equal "
                             "to supported version %d.",
@@ -52,7 +54,7 @@ namespace Eloquent {
 
                 if (interpreter.AllocateTensors() != kTfLiteOk) {
                     failed = true;
-                    Serial.println("Allocation failed");
+//                     Serial.println("Allocation failed");
                     reporter->Report("AllocateTensors() failed");
 
                     return false;
@@ -125,6 +127,7 @@ namespace Eloquent {
             uint8_t tensorArena[tensorArenaSize];
             tflite::ErrorReporter *reporter;
             tflite::MicroInterpreter *interpreter;
+            tflite::MicroOpResolver *resolver;
             TfLiteTensor *input;
             TfLiteTensor *output;
             const tflite::Model *model;
