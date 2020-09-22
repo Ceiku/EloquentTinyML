@@ -29,10 +29,8 @@ namespace Eloquent {
             TfLite() :
                 failed(false) {
             }
-            
-            void set_resolver(tflite::MicroOpResolver resolver) { this->resolver = resolver; }
 
-            bool begin(const unsigned char *modelData) {
+            bool begin(const unsigned char *modelData, tflite::MicroOpResolver *resolver=tflite::ops::micro::AllOpsResolver) {
                 static tflite::MicroErrorReporter microReporter;
 
                 reporter = &microReporter;
@@ -127,7 +125,6 @@ namespace Eloquent {
             uint8_t tensorArena[tensorArenaSize];
             tflite::ErrorReporter *reporter;
             tflite::MicroInterpreter *interpreter;
-            tflite::MicroOpResolver *resolver;
             TfLiteTensor *input;
             TfLiteTensor *output;
             const tflite::Model *model;
